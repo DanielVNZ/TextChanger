@@ -25,7 +25,7 @@ namespace SimpleTextChanger
         {
             log.Info("TextChanger mod loaded.");
 
-
+            
 
             m_Setting = new Setting(this);
             m_Setting.RegisterInOptionsUI();
@@ -33,8 +33,7 @@ namespace SimpleTextChanger
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
 
             // Prompt user for input and replace text
-            entryID_New_Game = "Menu.NEW_GAME"; // Example entryID
-            newText = GetUserInput("Enter Text:");
+
 
             log.Info(nameof(OnLoad));
 
@@ -62,14 +61,6 @@ namespace SimpleTextChanger
             }
         }
 
-        public string GetUserInput(string prompt)
-        {
-            // Use the selected dropdown option
-            string selectedOptionText = m_Setting.GetSelectedEnumAsString();
-
-            // Use the selected option in the user prompt
-            return $"{selectedOptionText}";
-        }
 
         public void ReplaceText(string entryID, string newText)
         {
