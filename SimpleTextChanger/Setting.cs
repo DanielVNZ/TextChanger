@@ -17,11 +17,18 @@ using System;
 using JetBrains.Annotations;
 using Colossal.IO.AssetDatabase.Internal;
 using UnityEngine.PlayerLoop;
+using Newtonsoft.Json;
+using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace SimpleTextChanger
 
 
 {
+
+   
+
+
 
     [FileLocation(nameof(SimpleTextChanger))]
     [SettingsUIGroupOrder(kButtonGroup, kGroupTwo, kGroupThree)]
@@ -41,13 +48,16 @@ namespace SimpleTextChanger
         public string selectedButton = "";
         public string selectedVariableName = "";
 
-        public string New_Game_Text = "";
-        public string Continue_Game_Text = "";
-        public string Load_Game_Text = "";
-        public string Save_Game_Text = "";
-        public string Editor_Text = "";
-        public string Options_Text = "";
-        public string Exit_Text = "";
+        public string New_Game_Text = "New Game";
+        public string Continue_Game_Text = "Continue";
+        public string Load_Game_Text = "Load Game";
+        public string Save_Game_Text = "Save Game";
+        public string Editor_Text = "Editor";
+        public string Options_Text = "Options";
+        public string Exit_Text = "Exit";
+
+
+        
         
 
         public const string a = "a";
@@ -77,6 +87,9 @@ namespace SimpleTextChanger
         public const string y = "y";
         public const string z = "z";
         public const string space = " ";
+        public const string exclamation_mark = "!";
+        public const string full_stop = ".";
+
 
         private Mod m_Mod;
 
@@ -87,10 +100,122 @@ namespace SimpleTextChanger
 
         public Setting(IMod mod) : base(mod)
         {
-            SetDefaults(); // Set default values upon initialization
+            GetSettingsFilePath();
+
+            LoadSettings(); // Load settings upon initialization
+            //SetDefaults(); // Set default values upon initialization
+            
 
 
         }
+
+        public string GetSettingsFilePath()
+        {
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            appDataPath = Path.Combine(appDataPath, "..", "LocalLow"); // Traverse to LocalLow
+
+            string modSettingsDirectory = Path.Combine(appDataPath, "Colossal Order", "Cities Skylines II", "ModSettings", "SimpleTextChanger");
+
+            // Create the directory if it doesn't exist
+            if (!Directory.Exists(modSettingsDirectory))
+            {
+                Directory.CreateDirectory(modSettingsDirectory);
+            }
+
+            return Path.Combine(modSettingsDirectory, "SimpleTextChangerSettings.json");
+        }
+
+        public class SettingsData
+        {
+            public string New_Game_Text = "New Game";
+            public string Continue_Game_Text = "Continue";
+            public string Load_Game_Text = "Load Game";
+            public string Save_Game_Text = "Save Game";
+            public string Editor_Text = "Editor";
+            public string Options_Text = "Options";
+            public string Exit_Text = "Exit";
+        }
+
+        public void SaveSettings()
+        {
+            try
+            {
+                SettingsData data = new SettingsData()
+                {
+                    New_Game_Text = New_Game_Text,
+                    Continue_Game_Text = Continue_Game_Text,
+                    Load_Game_Text= Load_Game_Text,
+                    Save_Game_Text = Save_Game_Text,    
+                    Editor_Text = Editor_Text,
+                    Options_Text = Options_Text,
+                    Exit_Text = Exit_Text,
+                    // ... populate other settings ...
+                };
+
+                string jsonData = JsonConvert.SerializeObject(data, Formatting.Indented); // Indented for readability
+                File.WriteAllText(GetSettingsFilePath(), jsonData);
+
+                Mod.log.Info($"Saving settings to: {GetSettingsFilePath()}");
+                Mod.log.Info($"New Game: {New_Game_Text}");
+                Mod.log.Info($"Continue Game: {Continue_Game_Text}");
+                Mod.log.Info($"Load Game: {Load_Game_Text}");
+
+                Mod.log.Info($"JSON DATA: {jsonData}");
+
+
+                Mod.log.Info("Settings saved successfully.");
+            }
+            catch (Exception ex)
+            {
+                Mod.log.Error($"Error saving settings: {ex.Message}");
+            }
+        }
+
+        public void LoadSettings()
+        {
+            try
+            {
+                if (File.Exists(GetSettingsFilePath()))
+                {
+                    string jsonData = File.ReadAllText(GetSettingsFilePath());
+                    SettingsData data = JsonConvert.DeserializeObject<SettingsData>(jsonData);
+
+                    New_Game_Text = data.New_Game_Text;
+                    Continue_Game_Text = data.Continue_Game_Text;
+                    Load_Game_Text = data.Load_Game_Text;
+                    Save_Game_Text = data.Save_Game_Text;
+                    Editor_Text = data.Editor_Text;
+                    Options_Text = data.Options_Text;
+                    Exit_Text = data.Exit_Text;
+                    // ... load other settings ...
+
+                    m_Mod.ReplaceText("Menu.NEW_GAME", New_Game_Text);
+                    m_Mod.ReplaceText("Menu.CONTINUE_GAME", Continue_Game_Text);
+                    m_Mod.ReplaceText("Menu.LOAD_GAME", Load_Game_Text);
+                    m_Mod.ReplaceText("Menu.SAVE_GAME", Save_Game_Text);
+                    m_Mod.ReplaceText("Menu.EDITOR", Editor_Text);
+                    m_Mod.ReplaceText("Menu.OPTIONS", Options_Text);
+                    m_Mod.ReplaceText("Menu.EXIT_GAME", Exit_Text);
+
+
+                    Mod.log.Info("Settings loaded successfully.");
+                    Mod.log.Info($"JSON DATA {jsonData}");
+                }
+                else
+                {
+                    Mod.log.Info("No settings file found, using defaults.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Mod.log.Error($"Error loading settings: {ex.Message}");
+            }
+            
+        }
+
+
+
+
 
         public void SetModReference(Mod mod)
         {
@@ -104,7 +229,7 @@ namespace SimpleTextChanger
         {
             set
             {
-                selectedButton = New_Game_Text;
+                //selectedButton = New_Game_Text;
                 selectedVariableName = "New Game";
             }
         }
@@ -114,7 +239,7 @@ namespace SimpleTextChanger
         {
             set
             {
-                selectedButton = Continue_Game_Text;
+                //selectedButton = Continue_Game_Text;
                 selectedVariableName = "Continue";
             }
         }
@@ -124,7 +249,7 @@ namespace SimpleTextChanger
         {
             set
             {
-                selectedButton = Load_Game_Text;
+                //selectedButton = Load_Game_Text;
                 selectedVariableName = "Load Game";
             }
         }
@@ -134,7 +259,7 @@ namespace SimpleTextChanger
         {
             set
             {
-                selectedButton = Save_Game_Text;
+                //selectedButton = Save_Game_Text;
                 selectedVariableName = "Save Game";
             }
         }
@@ -144,7 +269,7 @@ namespace SimpleTextChanger
         {
             set
             {
-                selectedButton = Editor_Text;
+                //selectedButton = Editor_Text;
                 selectedVariableName = "Editor";
             }
         }
@@ -154,7 +279,7 @@ namespace SimpleTextChanger
         {
             set
             {
-                selectedButton = Options_Text;
+                //selectedButton = Options_Text;
                 selectedVariableName = "Options";
             }
         }
@@ -164,7 +289,7 @@ namespace SimpleTextChanger
         {
             set
             {
-                selectedButton = Exit_Text;
+                //selectedButton = Exit_Text;
                 selectedVariableName = "Exit";
             }
         }
@@ -468,6 +593,42 @@ namespace SimpleTextChanger
             }
         }
 
+        [SettingsUISection(kSection, kGroupTwo)]
+        public bool Button_exclamation_mark
+        {
+            set
+            {
+                selectedButton += "!";
+                Mod.log.Info("added letter '!'");
+                Mod.log.Info($"Selected Button: {selectedButton}");
+            }
+        }
+
+        [SettingsUISection(kSection, kGroupTwo)]
+        public bool Button_full_stop
+        {
+            set
+            {
+                selectedButton += ".";
+                Mod.log.Info("added letter '.'");
+                Mod.log.Info($"Selected Button: {selectedButton}");
+            }
+        }
+
+
+        [SettingsUISection(kSection, kGroupTwo)]
+        public bool Button_clear
+        {
+            set
+            {
+                selectedButton = "";
+                Mod.log.Info("Clearing text");
+                Mod.log.Info($"Selected Button: {selectedButton}");
+            }
+        }
+
+        
+
 
         [SettingsUISection(kSection, kGroupThree)]
         public bool Button_Submit
@@ -479,6 +640,9 @@ namespace SimpleTextChanger
 
                 Mod.log.Info($"Selected Button: {selectedButton}");
 
+                GetSettingsFilePath();
+
+                
 
                 if (selectedVariableName != null)
                 {
@@ -486,26 +650,47 @@ namespace SimpleTextChanger
                     {
                         case "New Game":
                             m_Mod.ReplaceText("Menu.NEW_GAME", selectedButton);
+                            New_Game_Text = selectedButton;
+                            selectedButton = "";
+                            SaveSettings();
                             break;
                         case "Resume":
                             m_Mod.ReplaceText("Menu.CONTINUE_GAME", selectedButton);
                             m_Mod.ReplaceText("Menu.RESUME_GAME", selectedButton);
+                            Continue_Game_Text = selectedButton;
+                            selectedButton = "";
+                            SaveSettings();
                             break;
                         case "Load Game":
                             m_Mod.ReplaceText("Menu.LOAD_GAME", selectedButton);
+                            Load_Game_Text = selectedButton;
+                            selectedButton = "";
+                            SaveSettings();
                             break;
                         case "Save Game":
                             m_Mod.ReplaceText("Menu.SAVE_GAME", selectedButton);
+                            Save_Game_Text = selectedButton;
+                            selectedButton = "";
+                            SaveSettings();
                             break;
                         case "Editor":
                             m_Mod.ReplaceText("Menu.EDITOR", selectedButton);
+                            Editor_Text = selectedButton;
+                            selectedButton = "";
+                            SaveSettings();
                             break;
                         case "Options":
                             m_Mod.ReplaceText("Menu.OPTIONS", selectedButton);
+                            Options_Text = selectedButton;
+                            selectedButton = "";
+                            SaveSettings();
                             break;
                         case "Exit":
                             m_Mod.ReplaceText("Menu.EXIT_GAME", selectedButton);
                             m_Mod.ReplaceText("Menu.EXIT_APPLICATION", selectedButton);
+                            Exit_Text = selectedButton;
+                            selectedButton = "";
+                            SaveSettings();
                             break;
                     }
                 }
@@ -514,13 +699,13 @@ namespace SimpleTextChanger
             }
         }
 
+        
+
 
         public override void SetDefaults()
         {
-            //EnumDropdown = SomeEnum.Value1;
-            selectedButton = "";
-            selectedVariableName = "";
-
+            //selectedButton = "";
+            //selectedVariableName = "";
         }
 
     }
@@ -553,7 +738,7 @@ namespace SimpleTextChanger
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_New_Game_Text)), "New Game" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_New_Game_Text)), "Change the text for the New Game button" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_Continue_Game_Text)), "Continue Game" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_Continue_Game_Text)), "Change the text for the Continue button" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_Continue_Game_Text)), "Change the text for the Continue button !WARNING! MAY NOT WORK" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_Load_Game_Text)), "Load Game" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_Load_Game_Text)), "Change the text for the Load Game button" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_Save_Game_Text)), "Save Game" },
@@ -564,6 +749,8 @@ namespace SimpleTextChanger
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_Options_Text)), "Change the text for the Options button" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_Exit_Text)), "Exit" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_Exit_Text)), "Change the text for the Exit button" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_full_stop)), "Full Stop"},
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_full_stop)), "Add a full stop"},
 
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_a)), "a"},
@@ -620,7 +807,10 @@ namespace SimpleTextChanger
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_z)), "Add the letter z" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_space)), "Space"},
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_space)), "Add a Space" },
-
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_clear)), "Clear Text"},
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_clear)), "Clears text" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Button_exclamation_mark)), "Exclamation Mark"},
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.Button_exclamation_mark)), "Add an exclamation mark" },
 
 
 

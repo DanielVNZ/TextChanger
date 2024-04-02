@@ -8,6 +8,9 @@ using UnityEngine;
 using Colossal.Logging;
 using Colossal.IO.AssetDatabase;
 using static Colossal.IO.AssetDatabase.AtlasFrame;
+using System.IO;
+using System;
+
 
 namespace SimpleTextChanger
 {
@@ -21,8 +24,15 @@ namespace SimpleTextChanger
 
         public string Description => "Changes text in the game"; // Description of your mod
 
+        
+
         public void OnLoad(UpdateSystem updateSystem)
         {
+
+            
+
+           
+
             log.Info("TextChanger mod loaded.");
 
             
@@ -33,7 +43,15 @@ namespace SimpleTextChanger
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(m_Setting));
 
             // Prompt user for input and replace text
-
+            m_Setting.LoadSettings();
+            /*ReplaceText("Menu.NEW_GAME", m_Setting.New_Game_Text);
+            ReplaceText("Menu.CONTINUE_GAME", m_Setting.Continue_Game_Text);
+            ReplaceText("Menu.LOAD_GAME", m_Setting.Load_Game_Text);
+            ReplaceText("Menu.SAVE_GAME", m_Setting.Save_Game_Text);
+            ReplaceText("Menu.EDITOR", m_Setting.Editor_Text);
+            ReplaceText("Menu.OPTIONS", m_Setting.Options_Text);
+            ReplaceText("Menu.EXIT_GAME", m_Setting.Exit_Text);*/
+            Mod.log.Info($"New Game Text {m_Setting.New_Game_Text}");
 
             log.Info(nameof(OnLoad));
 
@@ -52,10 +70,13 @@ namespace SimpleTextChanger
         public void OnDispose()
         {
             ReplaceText(entryID_New_Game, newText);
+            
 
             log.Info(nameof(OnDispose));
             if (m_Setting != null)
             {
+                m_Setting.GetSettingsFilePath();
+                m_Setting.SaveSettings();
                 m_Setting.UnregisterInOptionsUI();
                 m_Setting = null;
             }
