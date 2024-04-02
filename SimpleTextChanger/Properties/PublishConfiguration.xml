@@ -4,11 +4,11 @@
 	<!--Name of the mod to display to players-->
 	<DisplayName Value="SimpleTextChanger" />
 	<!--Short description of the mod-->
-	<ShortDescription Value="Simple way to change the ingame text." />
+	<ShortDescription Value="Simple way to change the in game title screen text." />
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<!--LongDescription Value="Simple way to change the ingame text." /-->
 	<LongDescription>
-Simple way to change the ingame text.
+		Simple way to change the in game title screen text. This my first ever mod, still learning but this seems to function okay. 
 	</LongDescription>
 	<!--Thumbnail-->
 	<Thumbnail Value="Properties/Thumbnail.png" />
